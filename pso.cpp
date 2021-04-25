@@ -13,8 +13,8 @@
 /***
     AUTHOR: Marlon da Silva Rogério
     DATA: 25 ABR 2021
-    DISCIPLINA: Tópicos Especiais em Inteligência Computacional 
-    DESCRICAO: Optimização por enxame de partículas | Rastrigin | Minização
+    DISCIPLINA: Tópicos Especiais em Inteligência Computacional https://github.com/msrogerio/pso_rastring/blob/main/pso.cpp
+    DESCRICAO: Optimização por enxame de partículas | Rastrigin | Minimização
 ***/
 
 using namespace std;
