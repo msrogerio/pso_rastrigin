@@ -65,34 +65,54 @@ int main(const int argc, const char* argv[]){
     
     for(long g=0;g<geracoes;g++){//laco principal
         cout << "\n";
-        cout << "#############################################";
-        cout << "\n";
-        cout << "Geracao " << g;
+        cout << "################### [ GERACAO " << g << "] ###################";
         cout << endl;
         for(int i=0;i<tam_pop;i++){ //laco para o calculo do fitness e atualizacao da melhor solucao
             aptidao(&populacao[i].solucao);
             if(populacao[i].solucao.fx[0] < melhor.solucao.fx[0]){
                 memcpy(&melhor, &populacao[i], sizeof(Particula)); 
-                cout << endl; 
-                cout << "[ 1.1 POP_SOLUCAO EH MELHOR ] -> " << populacao[i].solucao.fx[0];
-                cout << endl << ">>>"; 
-                for(int j=0;j<dimensoes_var;j++){
-                        cout << melhor.solucao.x[j]; 
-                }
-                cout << endl;
-            }else{
-                cout << endl;
-                cout << "[ 1.2 MELSOLUCAO EH MELHOR ] -> " << melhor.solucao.fx[0];
+                // cout << endl; 
+                // cout << "[ 1.1 POP_SOLUCAO EH MELHOR ] -> " << populacao[i].solucao.fx[0];
+                // cout << endl << ">>>"; 
+                // for(int j=0;j<dimensoes_var;j++){
+                //         cout << melhor.solucao.x[j]; 
+                // }
+                // cout << endl;
+            // }else{
+            //     cout << endl;
+            //     cout << "[ 1.2 MELSOLUCAO EH MELHOR ] -> " << melhor.solucao.fx[0];
             }
         }
         
         for(int i=0;i<tam_pop;i++){ //laco para a atualizacao da populacao
             atualizarMelhorPessoal(&populacao[i]);
+            // cout << endl;
+            // cout << " --- **** solucao < melhorpessoal [ " << populacao[i].melhorPessoal.fx[0] << " ]";
+
             calcularVelocidade(&populacao[i]);
-            atualizarPosicao(&populacao[i]);
+            // cout << endl;
+            // cout << " ---- **** VELOCIDADE [";
+            // for (int j=0; j<dimensoes_var; j++){
+            //     cout << " " << populacao[i].velocidade[j];
+            // }
+            // cout << " ]";
+            
+            atualizarPosicao(&populacao[i]);     
+            // cout << endl;
+            // cout << " ---- **** POSICAO [";
+            // for (int j=0; j<dimensoes_var; j++){
+            //     cout << " " << populacao[i].solucao.x[j];
+            // }
+            // cout << " ]";
         }
         cout << endl;
         cout << "Melhor ate agora ->>>>> " << melhor.solucao.fx[0] << " ...";
+        cout << endl;
+        cout << "[";
+        for(int j=0;j<dimensoes_var;j++){
+            cout << " " << melhor.solucao.x[j];
+        }
+        cout << " ]";
         if (melhor.solucao.fx[0] == 0){
             break;
         }
@@ -100,10 +120,12 @@ int main(const int argc, const char* argv[]){
     cout << endl;
     cout << "[ END ] <<< SOLUCAO FINAL >>>: " << melhor.solucao.fx[0];
     cout << endl;
+    cout << "[";
     for(int j=0;j<dimensoes_var;j++){
-        cout << melhor.solucao.x[j];
+        cout << " " << melhor.solucao.x[j];
     }
-}
+    cout << " ]";
+}   
 
 void inicializacao(){
     double extensao = limiteSuperior - limiteInferior; // qual o tamanho total
@@ -125,90 +147,47 @@ void aptidao(Individuo *ind){ //funcao Rastrigin
     }
     fx+=A*dimensoes_var;
     ind->fx[0]=fx;
-    cout << fx << " ";
 }
 
 
-void atualizarMelhorPessoal(Particula *part){   
-    cout << endl;
-    if (double(part->solucao.fx[0]) > double(part->melhorPessoal.fx[0])){
-        cout << "[ 2.1 -  ATUALIZA MELHOR PESSOAL ] " << part->solucao.fx[0] << "   >   " << part->melhorPessoal.fx[0];
-        part->solucao.fx[0] = part->melhorPessoal.fx[0];
-        for (int j=0; j<dimensoes_var; j++){
-            part->solucao.x[j] = part->melhorPessoal.x[j];
-        }
-    }else{
-        cout << "[ 2.2 -  ATUALIZA MELHOR PESSOAL ] " << part->solucao.fx[0] << "   <   " << part->melhorPessoal.fx[0];
-        part->melhorPessoal.fx[0] = part->solucao.fx[0];
-        for (int j=0; j<dimensoes_var; j++){
-            part->melhorPessoal.x[j] = part->solucao.x[j];
-        }
+void atualizarMelhorPessoal(Particula *part){ 
+    // cout << endl;
+    if (part->solucao.fx[0] < part->melhorPessoal.fx[0]){
+        part->melhorPessoal = part->solucao;
     }
 }
 
 void calcularVelocidade(Particula *part){
-    // nV = oldV + b * (pBest - pAtual) + c * (lBest - pAtual) + d * (gBest - pAtual);
-    double extensao = limiteSuperior - limiteInferior;
-    double newVelocidade;
-    double temp;
+    double newVelocidade=0;
+    // cout << endl;
+    // cout << " ---- func VELOCIDADE [";
     for (int j=0; j<dimensoes_var; j++){
-        newVelocidade = part->velocidade[j] * alfa + beta * (part->solucao.x[j] - part->melhorPessoal.x[j]);
-        newVelocidade = part->velocidade[j] + gama * (part->melhorLocal.x[j] - part->melhorPessoal.x[j]); 
-        newVelocidade = part->velocidade[j] + delta * (melhor.solucao.x[j] - part->melhorPessoal.x[j]);
-        // Se estiver no intervalo de limiteSuperior e limiteInferior 
-        if (newVelocidade <= limiteSuperior && newVelocidade >= limiteInferior){
-            part->velocidade[j] = newVelocidade;
-            cout << endl;            
-            cout << "[ 3.1 -  CAL. VEL.  (DENTRO DOS LIMITE)] DE ->   " << newVelocidade;
-        }else if (newVelocidade < limiteInferior) {
-            cout << endl;            
-            cout << "[ 3.2 -  CAL. VEL.  (FORA DOS LIMITE)] DE ->  " << newVelocidade;
-            part->velocidade[j] = limiteInferior-(rand()/(double)RAND_MAX)+0.01;
-            cout << " PARA =>  " << part->velocidade[j];
-        }else if (newVelocidade > limiteSuperior){
-            cout << endl;            
-            cout << "[ 3.3 -  CAL. VEL.  (FORA DOS LIMITE)] DE ->   " << newVelocidade;
-            part->velocidade[j] = limiteSuperior+(rand()/(double)RAND_MAX)-0.01;
-            cout << " PARA =>  " << part->velocidade[j];
-        
-        }
+        double b = (rand()/(double)RAND_MAX)*beta;
+        double c = (rand()/(double)RAND_MAX)*gama;
+        double d = (rand()/(double)RAND_MAX)*delta;
+        newVelocidade = alfa * part->velocidade[j]  + b * (part->melhorPessoal.x[j]-part->solucao.x[j]);
+        newVelocidade = part->velocidade[j] + c * (part->melhorPessoal.x[j] - part->solucao.x[j]); 
+        newVelocidade = part->velocidade[j] + d * (melhor.solucao.x[j] - part->solucao.x[j]); 
+        part->velocidade[j] = newVelocidade;
+        // cout << " " << part->velocidade[j];
     }
+    // cout << " ]";
 }
 
 void atualizarPosicao(Particula *part){
-    // posAtual = (posAnterior + volocidade) * epsilon
-    double extensao = limiteSuperior - limiteInferior; // qual o tamanho total
-    double newPosicao;
+    double newPosicao=0;
+    // cout << endl;
+    // cout << " ---- func POSICAO [";
     for (int j=0; j<dimensoes_var; j++){
         newPosicao = (part->solucao.x[j] + part->velocidade[j]) * epsilon;
-        //  Se estiver no intervalo de limiteSuperior e limiteInferior
         if (newPosicao <= limiteSuperior && newPosicao >= limiteInferior){
             part->solucao.x[j] = newPosicao;
-            cout << endl;            
-            cout << "[ 4.1 -  ATU. POSI. (DENTRO DOS LIMITE)] DE ->  " << newPosicao;
-        // Se for menor que o limite inferior
         }else if (newPosicao < limiteInferior) {
-            cout << endl;            
-            cout << "[ 4.2 -  ATU. POSI. (FORA DOS LIMITE)] DE ->  " << newPosicao;
-            part->solucao.x[j] = limiteInferior-(rand()/(double)RAND_MAX)+0.01;
-            cout << " PARA =>  " << part->solucao.x[j];
-        // Se for maior que o limiteSuperior
+            part->solucao.x[j] = limiteInferior;
         }else if (newPosicao > limiteSuperior){
-            cout << endl;
-            cout << "[ 4.3 -  ATU. POSI. (FORA DOS LIMITE)] DE ->  " << newPosicao;
-            part->solucao.x[j] = limiteSuperior+(rand()/(double)RAND_MAX)-0.01;
-            cout << " PARA =>  " << part->solucao.x[j];    
+            part->solucao.x[j] = limiteSuperior;
         }
+        // cout << " " << part->solucao.x[j];
     }
-    aptidao(&part->solucao);
-    if(part->solucao.fx[0] < melhor.solucao.fx[0]){
-        memcpy(&melhor, &part, sizeof(Particula)); 
-        cout << endl;
-        cout << "[ 4.4.1 POP_SOLUCAO EH MELHOR ] -> " << part->solucao.fx[0];
-        cout << endl << ">>>"; 
-        for(int j=0;j<dimensoes_var;j++){
-                cout << melhor.solucao.x[j]; 
-        }
-        cout << endl;
-    }
+    // cout << " ]";
 }
